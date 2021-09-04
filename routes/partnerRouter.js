@@ -1,48 +1,75 @@
 const express = require('express');
-const partnersRouter = express.Router();
+const partnerRouter = express.Router();
+const Partner = require('../models/partner');
 
-partnersRouter.route('/')
-//app.all('/partners', (req, res, next) => {
-.all((req, res, next) => {
-    res.statusCode=200;
-    res.setHeader('Content-Type', 'text/html');
-    next();
+partnerRouter.route('/')
+.get((req, res, next) => {
+    Partner.find()
+    .then(partners => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(partners);
+    })
+    .catch(err => next(err));
 })
-.get((req, res) => {
-    res.end('Will send all partners');
-})
-.put( (req, res) => {
-    res.end(`Will send all partners: ${req.body.name} with description: ${req.body.description}`);
-})
-.post((req, res) => {
-    res.statusCode = 403;
-    res.end('Post not supported partners');
-})
-.delete((req, res) => {
-    res.statusCode = 200;
-    res.end('Deleting partners');
-});
-
-partnersRouter.route('/:campsitesId')
-//app.all('/campsites', (req, res, next) => {
-.all((req, res, next) => {
-    res.statusCode=200;
-    res.setHeader('Content-Type', 'text/html');
-    next();
-})
-.get((req, res) => {
-    res.end('Will send all partners');
-})
-.put( (req, res) => {
+.put( (req, res, next) => {
+    Partner.create(req.body)
+    .then(partner => {
+        console.log('Partner created ', partner);
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(partner);
+    })
+    .catch(err => next(err))
     res.end(`Will send all partner: ${req.body.name} with description: ${req.body.description}`);
 })
 .post((req, res) => {
     res.statusCode = 403;
     res.end('Post not supported partners');
 })
-.delete((req, res) => {
-    res.statusCode = 200;
-    res.end('Deleting partners');
+.delete((req, res, next) => {
+    Partner.deleteMany()
+    .then(response => {
+        res.statusCode=200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(response);
+    })
+    .catch(err => next(err));
 });
 
-module.exports = partnersRouter;
+partnerRouter.route('/:partnerId')
+.get((req, res, next) => {
+    Partner.findById(req.params.partnerId)
+    .then(partner=> {
+        res.statusCode=200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(partner);
+    })
+    .catch(err=> next(err));
+})
+.put( (req, res, next) => {
+    Partner.findByIdAndUpdate(req.params.partnerId, {
+        $set: req.body
+    },{ new: true})
+    .then(partner => {
+        res.statusCode=200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(partner);
+    })
+    .catch(err=> next(err));
+})
+.post((req, res) => {
+    res.statusCode = 403;
+    res.end('Post not supported partners');
+})
+.delete((req, res, next) => {
+    Partner.findByIdAndDelete(req.params.partnerId)
+    .then(response => {
+        res.statusCode=200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(response);
+    })
+    .catch(err=> next(err));
+});
+
+module.exports = partnerRouter;
