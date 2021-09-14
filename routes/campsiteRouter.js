@@ -1,16 +1,10 @@
 const express = require('express');
-//const { response } = require('../app');
-const campsiteRouter = express.Router();
 const Campsite = require('../models/campsite');
+const authenticate = require('../authenticate');
+
+const campsiteRouter = express.Router();
 
 campsiteRouter.route('/')
-//app.all('/campsites', (req, res, next) => {
-/*.all((req, res, next) => {
-    res.statusCode=200;
-    res.setHeader('Content-Type', 'text/html');
-    next();
-})
-.get((req, res) => {*/
 .get((req, res, next) => {
     Campsite.find()
     .then(campsites => {
@@ -21,7 +15,7 @@ campsiteRouter.route('/')
     //res.end('Will send all campsites');
     .catch(err => next(err));
 })
-.post( (req, res, next) => {
+.post( authenticate.verifyUser, (req, res, next) => {
     Campsite.create(req.body)
     .then(campsite => {
         console.log('Campsite created ', campsite);
@@ -32,11 +26,11 @@ campsiteRouter.route('/')
     .catch(err => next(err))
     res.end(`Will send all campsite: ${req.body.name} with description: ${req.body.description}`);
 })
-.put((req, res) => {
+.put( authenticate.verifyUser, (req, res) => {
     res.statusCode = 403;
     res.end('Put not supported campsites');
 })
-.delete((req, res, next) => {
+.delete( authenticate.verifyUser, (req, res, next) => {
     //res.statusCode = 200;
     //res.end('Deleting campsites');
     Campsite.deleteMany()
@@ -65,7 +59,7 @@ campsiteRouter.route('/:campsitesId')
     })
     .catch(err=> next(err));
 })
-.put( (req, res, next) => {
+.put( authenticate.verifyUser,  (req, res, next) => {
     //res.end(`Will send all campsite: ${req.body.name} with description: ${req.body.description}`);
     Campsite.findByIdAndUpdate(req.params.campsitesId, {
         $set: req.body
@@ -77,11 +71,11 @@ campsiteRouter.route('/:campsitesId')
     })
     .catch(err=> next(err));
 })
-.post((req, res) => {
+.post( authenticate.verifyUser, (req, res) => {
     res.statusCode = 403;
     res.end('Post not supported campsites');
 })
-.delete((req, res, next) => {
+.delete( authenticate.verifyUser, (req, res, next) => {
     //res.statusCode = 200;
     //res.end('Deleting campsites');
     Campsite.findByIdAndDelete(req.params.campsitesId)
@@ -110,7 +104,7 @@ campsiteRouter.route('/:campsitesId/comments')
     //res.end('Will send all campsites');
     .catch(err => next(err));
 })
-.post( (req, res, next) => {
+.post( authenticate.verifyUser,  (req, res, next) => {
     Campsite.findById(req.params.campsitesId)
     .then(campsite => {
         if(campsite) {
@@ -131,11 +125,11 @@ campsiteRouter.route('/:campsitesId/comments')
     .catch(err => next(err))
     //res.end(`Will send all campsite: ${req.body.name} with description: ${req.body.description}`);
 })
-.put((req, res) => {
+.put( authenticate.verifyUser, (req, res) => {
     res.statusCode = 403;
     res.end(`Put not supported /campsites/${req.params.campsitesId}/comments} `);
 })
-.delete((req, res, next) => {
+.delete( authenticate.verifyUser, (req, res, next) => {
     Campsite.findById(req.params.campsitesId)
     .then(campsite => {
         if(campsite) {
@@ -179,11 +173,11 @@ campsiteRouter.route('/:campsitesId/comments/:commentId')
     //res.end('Will send all campsites');
     .catch(err => next(err));
 })
-.post( (req, res) => {
+.post( authenticate.verifyUser, (req, res) => {
     res.statusCode = 403;
     res.end(`Post not supported /campsites/${req.params.campsitesId}/comments/${req.params.commentId} `);
 })
-.put((req, res, next) => {
+.put( authenticate.verifyUser, (req, res, next) => {
     Campsite.findById(req.params.campsitesId)
     .then(campsite => {
         if(campsite && campsite.comments.id(req.params.commentId)) {
@@ -213,7 +207,7 @@ campsiteRouter.route('/:campsitesId/comments/:commentId')
     //res.end('Will send all campsites');
     .catch(err => next(err));
 })
-.delete((req, res, next) => {
+.delete( authenticate.verifyUser, (req, res, next) => {
     Campsite.findById(req.params.campsitesId)
     .then(campsite => {
         if(campsite && campsite.comments.id(req.params.commentId)) {

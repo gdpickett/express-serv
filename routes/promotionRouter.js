@@ -1,6 +1,8 @@
 const express = require('express');
-const promotionRouter = express.Router();
 const Promotion = require('../models/promotion');
+const authenticate = require('../authenticate');
+
+const promotionRouter = express.Router();
 
 promotionRouter.route('/')
 .get((req, res, next) => {
@@ -12,7 +14,7 @@ promotionRouter.route('/')
     })
     .catch(err => next(err));
 })
-.put( (req, res, next) => {
+.put(  authenticate.verifyUser, (req, res, next) => {
     Promotion.create(req.body)
     .then(promotion => {
         console.log('Promotion created ', promotion);
@@ -23,11 +25,11 @@ promotionRouter.route('/')
     .catch(err => next(err))
     res.end(`Will send all promotion: ${req.body.name} with description: ${req.body.description}`);
 })
-.post((req, res) => {
+.post( authenticate.verifyUser, (req, res) => {
     res.statusCode = 403;
     res.end('Post not supported promotions');
 })
-.delete((req, res, next) => {
+.delete( authenticate.verifyUser, (req, res, next) => {
     Promotion.deleteMany()
     .then(response => {
         res.statusCode=200;
@@ -47,7 +49,7 @@ promotionRouter.route('/:campsitesId')
     })
     .catch(err=> next(err));
 })
-.put( (req, res, next) => {
+.put(  authenticate.verifyUser, (req, res, next) => {
     Promotion.findByIdAndUpdate(req.params.promotionId, {
         $set: req.body
     },{ new: true})
@@ -58,11 +60,11 @@ promotionRouter.route('/:campsitesId')
     })
     .catch(err=> next(err));
 })
-.post((req, res) => {
+.post( authenticate.verifyUser, (req, res) => {
     res.statusCode = 403;
     res.end('Post not supported promotions');
 })
-.delete((req, res, next) => {
+.delete( authenticate.verifyUser, (req, res, next) => {
     Promotion.findByIdAndDelete(req.params.promotionId)
     .then(response => {
         res.statusCode=200;
