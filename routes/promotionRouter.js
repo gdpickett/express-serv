@@ -14,7 +14,7 @@ promotionRouter.route('/')
     })
     .catch(err => next(err));
 })
-.put(  authenticate.verifyUser, (req, res, next) => {
+.post(  authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     Promotion.create(req.body)
     .then(promotion => {
         console.log('Promotion created ', promotion);
@@ -25,11 +25,11 @@ promotionRouter.route('/')
     .catch(err => next(err))
     res.end(`Will send all promotion: ${req.body.name} with description: ${req.body.description}`);
 })
-.post( authenticate.verifyUser, (req, res) => {
+.put( authenticate.verifyUser, (req, res) => {
     res.statusCode = 403;
-    res.end('Post not supported promotions');
+    res.end('Put not supported promotions');
 })
-.delete( authenticate.verifyUser, (req, res, next) => {
+.delete( authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     Promotion.deleteMany()
     .then(response => {
         res.statusCode=200;
@@ -49,7 +49,7 @@ promotionRouter.route('/:campsitesId')
     })
     .catch(err=> next(err));
 })
-.put(  authenticate.verifyUser, (req, res, next) => {
+.put(  authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     Promotion.findByIdAndUpdate(req.params.promotionId, {
         $set: req.body
     },{ new: true})
@@ -64,7 +64,7 @@ promotionRouter.route('/:campsitesId')
     res.statusCode = 403;
     res.end('Post not supported promotions');
 })
-.delete( authenticate.verifyUser, (req, res, next) => {
+.delete( authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     Promotion.findByIdAndDelete(req.params.promotionId)
     .then(response => {
         res.statusCode=200;

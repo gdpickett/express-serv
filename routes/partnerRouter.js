@@ -25,11 +25,11 @@ partnerRouter.route('/')
     .catch(err => next(err))
     res.end(`Will send all partner: ${req.body.name} with description: ${req.body.description}`);
 })
-.post( authenticate.verifyUser, (req, res) => {
+.post( authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => {
     res.statusCode = 403;
     res.end('Post not supported partners');
 })
-.delete( authenticate.verifyUser, (req, res, next) => {
+.delete( authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     Partner.deleteMany()
     .then(response => {
         res.statusCode=200;
@@ -49,7 +49,7 @@ partnerRouter.route('/:partnerId')
     })
     .catch(err=> next(err));
 })
-.put( authenticate.verifyUser,  (req, res, next) => {
+.put( authenticate.verifyUser, authenticate.verifyAdmin,  (req, res, next) => {
     Partner.findByIdAndUpdate(req.params.partnerId, {
         $set: req.body
     },{ new: true})
@@ -64,7 +64,7 @@ partnerRouter.route('/:partnerId')
     res.statusCode = 403;
     res.end('Post not supported partners');
 })
-.delete( authenticate.verifyUser, (req, res, next) => {
+.delete( authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     Partner.findByIdAndDelete(req.params.partnerId)
     .then(response => {
         res.statusCode=200;

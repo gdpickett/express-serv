@@ -6,8 +6,30 @@ const authenticate = require('../authenticate');
 const router = express.Router();
 
 /* GET users listing. */
-router.get('/', function (req, res, next) {
-	res.send('respond with a resource');
+router.route('/')
+.get( authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+	//authenticate.verifyAdmin(req, res, next);
+	if(req && req.user.admin === true){
+		User.find()
+		.then(users => {
+			res.statusCode = 200;
+			res.setHeader('Content-Type', 'application/json');
+			res.json(users);
+			return next();
+		})
+		//res.end('Will send all campsites');
+		.catch(err => next(err));
+	}else{
+		res.statusCode = 200,
+		res.setHeader('Content-Type', 'application/json');
+		res.send('No user? '+req.user);
+	}
+	/*if(err){
+		return next(err);
+	}else{
+		return next();
+	}*/
+	
 });
 
 router.post('/signup', (req, res) => {
